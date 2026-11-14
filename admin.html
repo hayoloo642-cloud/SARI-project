@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Admin — SARI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .admin-wrap { max-width: 1100px; margin: 3rem auto; padding: 0 1.5rem; }
+  .login-card { max-width: 420px; margin: 6rem auto; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-xl); padding: 2.5rem; box-shadow: var(--sh-lg); }
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.2rem; }
+  .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--navy); }
+  .form-control { padding: 0.85rem 1rem; border: 1.5px solid var(--line); border-radius: var(--r-md); font-family: inherit; font-size: 0.95rem; }
+  .form-control:focus { outline: none; border-color: var(--blue); }
+  .tabs { display: flex; gap: 0.5rem; border-bottom: 2px solid var(--line); margin-bottom: 2rem; }
+  .tab-btn { background: none; border: none; padding: 0.9rem 1.4rem; font-family: inherit; font-size: 0.95rem; font-weight: 700; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+  .tab-btn.aktif { color: var(--blue); border-bottom-color: var(--blue); }
+  .table { width: 100%; border-collapse: collapse; background: var(--bg); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--sh-sm); }
+  .table th, .table td { padding: 1rem 1.2rem; text-align: left; font-size: 0.9rem; border-bottom: 1px solid var(--line); }
+  .table th { background: var(--bg-soft); font-weight: 700; color: var(--navy); }
+  .badge { display: inline-block; padding: 0.25rem 0.65rem; border-radius: var(--r-full); font-size: 0.75rem; font-weight: 700; }
+  .badge-hijau { background: #e8f8f1; color: #0b7a4b; }
+  .badge-kuning { background: #fef7e6; color: #b7791f; }
+  .badge-merah { background: #feecef; color: #c53030; }
+  .btn-sm { padding: 0.45rem 0.85rem; font-size: 0.8rem; border-radius: var(--r-sm); border: none; cursor: pointer; font-weight: 700; }
+  .btn-danger { background: #feecef; color: #c53030; }
+  .btn-danger:hover { background: #c53030; color: #fff; }
+  .btn-success { background: #e8f8f1; color: #0b7a4b; }
+  .btn-success:hover { background: #10b981; color: #fff; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; margin-bottom: 2rem; }
+  .stat-card { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 1.6rem; box-shadow: var(--sh-sm); }
+  .stat-card .num { font-family: 'Sora', sans-serif; font-size: 2rem; font-weight: 700; color: var(--blue); }
+  .stat-card .lbl { font-size: 0.85rem; color: var(--muted); font-weight: 600; margin-top: 0.2rem; }
+  .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .admin-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+  .btn-edit { background: var(--blue-soft); color: var(--blue); }
+
+  /* Responsif untuk hp */
+  @media (max-width: 768px) {
+    .admin-wrap { max-width: 100%; margin: 1rem auto; padding: 0 1rem; }
+    .login-card { margin: 2rem auto; padding: 1.5rem; }
+    .grid-form { grid-template-columns: 1fr; gap: 0.8rem; }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table { min-width: 700px; width: auto; overflow: visible; }
+    .table th, .table td { padding: 0.7rem 0.9rem; font-size: 0.82rem; white-space: normal; word-break: normal; }
+    .table td.nowrap { white-space: nowrap; }
+    .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 0.5rem; }
+    .tab-btn { padding: 0.7rem 1rem; font-size: 0.85rem; white-space: nowrap; }
+    .stat-card { padding: 1.2rem; }
+    .stat-card .num { font-size: 1.6rem; }
+    .btn-sm { padding: 0.35rem 0.6rem; font-size: 0.72rem; white-space: nowrap; }
+    .nav-inner { flex-wrap: wrap; gap: 0.5rem; height: auto; min-height: 64px; }
+    .admin-bar { flex-wrap: wrap; gap: 1rem; }
+    .admin-bar > div { min-width: 0; }
+    div[style*="display:flex; gap:0.5rem;"] { flex-wrap: wrap; gap: 0.5rem !important; }
+    div[style*="display:flex; gap:0.8rem; margin-top:1.5rem;"] { flex-wrap: wrap; gap: 0.6rem; }
+    div[style*="display:flex; gap:0.8rem; margin-top:1.5rem;"] .btn { width: auto; min-width: 90px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand">SARI<b>.</b> <span style="font-size:0.85rem; color:var(--muted); font-weight:600;">Panel Admin</span></a>
+    <div class="nav-right" id="nav-user" style="display:none;">
+      <span id="user-info" style="font-size:0.85rem; font-weight:600; color:var(--muted);"></span>
+      <button class="btn btn-outline" style="padding:0.45rem 1rem; font-size:0.82rem; margin-right:0.5rem;" onclick="toggleLang()">${localStorage.getItem('sari_admin_lang') === 'en' ? 'ID' : 'EN'}</button>
+      <button class="btn btn-outline" style="padding:0.45rem 1rem; font-size:0.82rem;" onclick="logout()">Keluar</button>
+    </div>
+  </div>
+</nav>
+
+<!-- View 1: Form Login -->
+<div id="view-login" class="login-card">
+  <h2 data-t="Masuk Admin" style="font-size:1.6rem; margin-bottom:0.4rem;">Masuk Admin</h2>
+  <p data-t="Kelola destinasi, ulasan pengunjung, dan statistik." style="font-size:0.88rem; color:var(--muted); margin-bottom:1.6rem;">Kelola destinasi, ulasan pengunjung, dan statistik.</p>
+  <form id="form-login" onsubmit="event.preventDefault(); submitLogin();">
+    <div class="form-group">
+      <label data-t="Email">Email</label>
+      <input type="email" id="login-email" class="form-control" value="admin@sari-bali.id" required>
+    </div>
+    <div class="form-group">
+      <label data-t="Kata Sandi">Kata Sandi</label>
+      <input type="password" id="login-pass" class="form-control" value="sari2026" required>
+    </div>
+    <div id="login-error" style="color:#c53030; font-size:0.85rem; margin-bottom:1rem; display:none;"></div>
+    <button type="submit" class="btn btn-primary" style="width:100%;" data-t="Masuk">Masuk</button>
+  </form>
+</div>
+
+<!-- View 2: Dashboard -->
+<div id="view-dashboard" class="admin-wrap" style="display:none;">
+  <div class="admin-bar">
+    <div>
+      <h2 data-t="Dashboard Kelola SARI" style="font-size:1.8rem; margin-bottom:0.2rem;">Dashboard Kelola SARI</h2>
+      <p data-t="Perubahan data langsung memperbarui file assets/js/data.js." style="color:var(--muted); font-size:0.92rem;">Perubahan data langsung memperbarui file <code>assets/js/data.js</code>.</p>
+    </div>
+    <button class="btn btn-outline" onclick="triggerRegenerasi()" data-t="Regenerasi data.js">Regenerasi data.js</button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="num" id="stat-total-dest">-</div>
+      <div class="lbl" data-t="Total Destinasi">Total Destinasi</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="stat-pending-ulasan">-</div>
+      <div class="lbl" data-t="Ulasan Pending">Ulasan Pending</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="stat-total-kunjungan">-</div>
+      <div class="lbl" data-t="Total Kunjungan">Total Kunjungan</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn aktif" onclick="pindahTab('destinasi')" data-t="Destinasi">Destinasi</button>
+    <button class="tab-btn" onclick="pindahTab('tambah')" data-t="+ Tambah Destinasi">+ Tambah Destinasi</button>
+    <button class="tab-btn" onclick="pindahTab('kalender')" data-t="Hari Suci">Kalender Agama</button>
+    <button class="tab-btn" onclick="pindahTab('budaya')" data-t="Etika Budaya">Etika Budaya</button>
+    <button class="tab-btn" onclick="pindahTab('ulasan')" data-t="Ulasan">Moderasi Ulasan</button>
+    <button class="tab-btn" onclick="pindahTab('statistik')" data-t="Statistik">Statistik Kunjungan</button>
+  </div>
+
+  <!-- Tab Destinasi -->
+  <div id="tab-destinasi">
+    <div class="table-wrap"><table class="table">
+      <thead>
+        <tr>
+          <th data-t="Nama">Nama</th>
+          <th data-t="Wilayah">Wilayah</th>
+          <th data-t="Kategori">Kategori</th>
+          <th data-t="Rating">Rating</th>
+          <th data-t="Kunjungan">Kunjungan</th>
+          <th data-t="Status">Status</th>
+          <th data-t="Aksi">Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-destinasi"></tbody>
+    </table></div>
+  </div>
+
+  <!-- Tab Tambah/Edit Destinasi -->
+  <div id="tab-tambah" style="display:none;">
+    <div class="panel">
+      <h3 id="form-dest-title" data-t="Tambah Destinasi Baru" style="margin-bottom:1.4rem;">Tambah Destinasi Baru</h3>
+      <form id="form-dest" onsubmit="event.preventDefault(); submitDestinasi();">
+        <input type="hidden" id="dest-id">
+        <div class="grid-form">
+          <div class="form-group">
+            <label>Nama Destinasi *</label>
+            <input type="text" id="dest-nama" class="form-control" required oninput="autoSlug()">
+          </div>
+          <div class="form-group">
+            <label>Slug (URL) *</label>
+            <input type="text" id="dest-slug" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="grid-form">
+          <div class="form-group">
+            <label>Wilayah *</label>
+            <select id="dest-wilayah" class="form-control" required>
+              <option value="karangasem">Karangasem</option>
+              <option value="buleleng">Buleleng</option>
+              <option value="tabanan">Tabanan</option>
+              <option value="klungkung">Klungkung</option>
+              <option value="bangli">Bangli</option>
+              <option value="gianyar">Gianyar</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Kategori</label>
+            <input type="text" id="dest-kategori" class="form-control" placeholder="Pantai & Nelayan, Pura, dll">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Deskripsi Ringkas (untuk kartu) *</label>
+          <input type="text" id="dest-deskripsi" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label>Detail Paragraf 1 (pengantar mendalam) *</label>
+          <textarea id="dest-detail-1" class="form-control" rows="3" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Detail Paragraf 2 (suasana, waktu terbaik, tips)</label>
+          <textarea id="dest-detail-2" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="grid-form">
+          <div class="form-group">
+            <label>Sorotan Utama (pisahkan baris baru)</label>
+            <textarea id="dest-highlight" class="form-control" rows="3" placeholder="Snorkeling jernih&#10;Matahari terbit perahu jukung"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Aktivitas (pisahkan koma)</label>
+            <textarea id="dest-aktivitas" class="form-control" rows="3" placeholder="Snorkeling, Diving, Fotografi"></textarea>
+          </div>
+        </div>
+
+        <div class="grid-form">
+          <div class="form-group">
+            <label>Waktu Terbaik</label>
+            <input type="text" id="dest-waktu" class="form-control" placeholder="April - November">
+          </div>
+          <div class="form-group">
+            <label>Jam Buka</label>
+            <input type="text" id="dest-jam" class="form-control" placeholder="06:00 - 18:00">
+          </div>
+        </div>
+
+        <div class="grid-form">
+          <div class="form-group">
+            <label>Tarif</label>
+            <input type="text" id="dest-tarif" class="form-control" placeholder="Rp 50.000 / Gratis">
+          </div>
+          <div class="form-group">
+            <label>WhatsApp (opsional, format 628...)</label>
+            <input type="text" id="dest-wa" class="form-control" placeholder="6281234567890">
+          </div>
+        </div>
+
+        <div class="grid-form">
+          <div class="form-group">
+            <label>Latitude (koordinat lokasi)</label>
+            <input type="number" id="dest-lat" class="form-control" step="any" placeholder="-8.3499">
+          </div>
+          <div class="form-group">
+            <label>Longitude (koordinat lokasi)</label>
+            <input type="number" id="dest-lng" class="form-control" step="any" placeholder="115.6568">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Cara Masuk</label>
+          <input type="text" id="dest-masuk" class="form-control" placeholder="Kendaraan pribadi dari Amlapura, sekitar 1 jam">
+        </div>
+
+        <div class="form-group">
+          <label>Etika Khusus Tempat Ini *</label>
+          <textarea id="dest-etika" class="form-control" rows="2" required placeholder="Gunakan kain saput, jangan berdiri di atas terumbu karang"></textarea>
+        </div>
+
+        <div class="grid-form">
+          <div class="form-group">
+            <label>Path Foto Utama *</label>
+            <div style="display:flex; gap:0.5rem;">
+              <input type="text" id="dest-gambar" class="form-control" required placeholder="assets/images/amed.jpg">
+              <label class="btn btn-outline" style="cursor:pointer; white-space:nowrap; padding:0.8rem 1rem; font-size:0.82rem; display:inline-flex; align-items:center; gap:0.35rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <span>Upload</span>
+                <input type="file" accept="image/*" style="display:none;" onchange="uploadFoto(this, 'dest-gambar')">
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Galeri Tambahan (multi-foto, pisahkan koma)</label>
+            <div style="display:flex; gap:0.5rem;">
+              <input type="text" id="dest-galeri" class="form-control" placeholder="assets/images/amed-2.jpg, assets/images/amed-3.jpg">
+              <label class="btn btn-outline" style="cursor:pointer; white-space:nowrap; padding:0.8rem 1rem; font-size:0.82rem; display:inline-flex; align-items:center; gap:0.35rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <span>Upload</span>
+                <input type="file" accept="image/*" style="display:none;" onchange="uploadFotoGaleri(this, 'dest-galeri')">
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:0.8rem; margin-top:1.5rem;">
+          <button type="submit" class="btn btn-primary">Simpan Destinasi</button>
+          <button type="button" class="btn btn-outline" onclick="batalEdit()">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tab Kalender Agama (CRUD) -->
+  <div id="tab-kalender" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+      <h3 style="margin:0;">Daftar Hari Suci &amp; Sejarah Ritual</h3>
+      <button class="btn btn-primary" onclick="bukaFormKalender()">+ Tambah Hari Suci</button>
+    </div>
+
+    <div id="box-form-kalender" class="panel" style="display:none; margin-bottom:2rem; border-left:4px solid var(--blue);">
+      <h4 id="form-kal-title" style="margin-bottom:1.2rem;">Tambah Hari Suci</h4>
+      <form id="form-kal" onsubmit="event.preventDefault(); submitKalender();">
+        <input type="hidden" id="kal-id">
+        <div class="grid-form">
+          <div class="form-group">
+            <label>Nama Hari Suci *</label>
+            <input type="text" id="kal-nama" class="form-control" required placeholder="Nyepi / Galungan / Piodalan">
+          </div>
+          <div class="form-group">
+            <label>Jadwal / Waktu Pelaksanaan *</label>
+            <input type="text" id="kal-tanggal" class="form-control" required placeholder="Setiap 210 hari / Maret–April">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Makna / Arti Singkat *</label>
+          <input type="text" id="kal-keterangan" class="form-control" required placeholder="Hari kemenangan Dharma melawan Adharma">
+        </div>
+        <div class="form-group">
+          <label>Panduan &amp; Saran bagi Wisatawan *</label>
+          <textarea id="kal-saran" class="form-control" rows="2" required placeholder="Tetap di akomodasi, busana adat wajib saat masuk pura"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Detail Sejarah &amp; Asal-Usul Ritual (Agar Wisatawan Paham) *</label>
+          <textarea id="kal-sejarah" class="form-control" rows="5" required placeholder="Tuliskan latar belakang sejarah, asal mula penanggalan, dan filosofi sakral hari raya ini..."></textarea>
+        </div>
+        <div style="display:flex; gap:0.8rem; margin-top:1rem;">
+          <button type="submit" class="btn btn-primary">Simpan Hari Suci</button>
+          <button type="button" class="btn btn-outline" onclick="tutupFormKalender()">Batal</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="table-wrap"><table class="table">
+      <thead>
+        <tr>
+          <th>Hari Suci</th>
+          <th>Jadwal Pelaksanaan</th>
+          <th>Makna &amp; Sejarah</th>
+          <th>Panduan Wisatawan</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-kalender"></tbody>
+    </table></div>
+  </div>
+
+  <!-- Tab Etika Budaya (CRUD) -->
+  <div id="tab-budaya" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+      <h3 style="margin:0;">Daftar Aturan &amp; Etika Budaya Bali</h3>
+      <button class="btn btn-primary" onclick="bukaFormBudaya()">+ Tambah Etika Budaya</button>
+    </div>
+
+    <div id="box-form-budaya" class="panel" style="display:none; margin-bottom:2rem; border-left:4px solid var(--blue);">
+      <h4 id="form-bud-title" style="margin-bottom:1.2rem;">Tambah Etika Budaya</h4>
+      <form id="form-bud" onsubmit="event.preventDefault(); submitBudaya();">
+        <input type="hidden" id="bud-id">
+        <div class="grid-form">
+          <div class="form-group">
+            <label>Judul Etika / Nilai Adat *</label>
+            <input type="text" id="bud-judul" class="form-control" required placeholder="Busana Masuk Pura / Canang Sari">
+          </div>
+          <div class="form-group">
+            <label>Slug URL (Pengenal Unik) *</label>
+            <input type="text" id="bud-slug" class="form-control" required placeholder="busana-pura">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Penjelasan Ringkas (Muncul di Kartu) *</label>
+          <input type="text" id="bud-ringkas" class="form-control" required placeholder="Kain saput dan selendang untuk memasuki area suci">
+        </div>
+        <div class="form-group">
+          <label>Detail Lengkap &amp; Norma Adat (Muncul saat Klik Dialog) *</label>
+          <textarea id="bud-detail" class="form-control" rows="4" required placeholder="Jelaskan secara runtut tata cara, larangan, dan etika sopan santun..."></textarea>
+        </div>
+        <div style="display:flex; gap:0.8rem; margin-top:1rem;">
+          <button type="submit" class="btn btn-primary">Simpan Etika Budaya</button>
+          <button type="button" class="btn btn-outline" onclick="tutupFormBudaya()">Batal</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="table-wrap"><table class="table">
+      <thead>
+        <tr>
+          <th>Judul Etika</th>
+          <th>Slug</th>
+          <th>Ringkasan</th>
+          <th>Detail Norma</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-budaya"></tbody>
+    </table></div>
+  </div>
+
+  <!-- Tab Ulasan -->
+  <div id="tab-ulasan" style="display:none;">
+    <div class="table-wrap"><table class="table">
+      <thead>
+        <tr>
+          <th>Destinasi</th>
+          <th>Nama Pengunjung</th>
+          <th>Rating</th>
+          <th>Komentar</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-ulasan"></tbody>
+    </table></div>
+  </div>
+
+  <!-- Tab Statistik -->
+  <div id="tab-statistik" style="display:none;">
+    <div class="panel">
+      <h3 style="margin-bottom:1rem;">Kunjungan Per Destinasi</h3>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Destinasi</th><th>Total Kunjungan Halaman</th></tr></thead>
+        <tbody id="tbody-stat-dest"></tbody>
+      </table></div>
+    </div>
+
+    <div class="panel" style="margin-top:1.5rem;">
+      <h3 style="margin-bottom:1rem;">Kunjungan Harian (14 Hari Terakhir)</h3>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Tanggal</th><th>Jumlah Kunjungan</th></tr></thead>
+        <tbody id="tbody-stat-harian"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let token = localStorage.getItem('sari_admin_token') || null;
+
+function authHeaders() {
+  return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+}
+
+async function submitLogin() {
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-pass').value;
+  const errBox = document.getElementById('login-error');
+  errBox.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const j = await res.json();
+    if (!res.ok) {
+      errBox.textContent = j.error || 'Login gagal';
+      errBox.style.display = 'block';
+      return;
+    }
+    token = j.token;
+    localStorage.setItem('sari_admin_token', token);
+    localStorage.setItem('sari_admin_user', JSON.stringify(j.user));
+    tampilkanDashboard(j.user);
+  } catch (err) {
+    errBox.textContent = 'Gagal menghubungi server';
+    errBox.style.display = 'block';
+  }
+}
+
+function logout() {
+  fetch('/api/logout', { method: 'POST', headers: authHeaders() });
+  token = null;
+  localStorage.removeItem('sari_admin_token');
+  localStorage.removeItem('sari_admin_user');
+  document.getElementById('view-dashboard').style.display = 'none';
+  document.getElementById('nav-user').style.display = 'none';
+  document.getElementById('view-login').style.display = 'block';
+}
+
+function tampilkanDashboard(user) {
+  document.getElementById('view-login').style.display = 'none';
+  document.getElementById('view-dashboard').style.display = 'block';
+  document.getElementById('nav-user').style.display = 'flex';
+  document.getElementById('user-info').textContent = user.nama + ' (' + user.email + ')';
+  muatDestinasi();
+  muatKalender();
+  muatBudaya();
+  muatUlasan();
+  muatStatistik();
+  applyAdminTranslations();
+}
+
+function pindahTab(nama) {
+  const tabs = ['destinasi', 'tambah', 'kalender', 'budaya', 'ulasan', 'statistik'];
+  tabs.forEach((t, i) => {
+    const el = document.getElementById('tab-' + t);
+    if (el) el.style.display = (t === nama) ? 'block' : 'none';
+    const btn = document.querySelectorAll('.tabs .tab-btn')[i];
+    if (btn) btn.classList.toggle('aktif', t === nama);
+  });
+  if (nama === 'statistik') muatStatistik();
+  applyAdminTranslations();
+}
+
+function autoSlug() {
+  const nama = document.getElementById('dest-nama').value;
+  const slugInput = document.getElementById('dest-slug');
+  if (!document.getElementById('dest-id').value) {
+    slugInput.value = nama.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+}
+
+async function uploadFoto(inputEl, targetInputId) {
+  if (!inputEl.files || !inputEl.files[0]) return;
+  const file = inputEl.files[0];
+  const fd = new FormData();
+  fd.append('file', file);
+
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: fd
+    });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || 'Gagal upload');
+    document.getElementById(targetInputId).value = j.path;
+    alert('Foto berhasil diupload: ' + j.path);
+  } catch (err) {
+    alert('Upload gagal: ' + err.message);
+  }
+}
+
+async function uploadFotoGaleri(inputEl, targetInputId) {
+  if (!inputEl.files || !inputEl.files[0]) return;
+  const file = inputEl.files[0];
+  const fd = new FormData();
+  fd.append('file', file);
+
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: fd
+    });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || 'Gagal upload');
+    const el = document.getElementById(targetInputId);
+    el.value = el.value ? el.value + ', ' + j.path : j.path;
+    alert('Foto galeri ditambahkan: ' + j.path);
+  } catch (err) {
+    alert('Upload gagal: ' + err.message);
+  }
+}
+
+async function muatDestinasi() {
+  const res = await fetch('/api/destinasi', { headers: authHeaders() });
+  if (res.status === 401) return logout();
+  const list = await res.json();
+
+  document.getElementById('stat-total-dest').textContent = list.length;
+  let totalKunj = 0;
+  list.forEach(d => totalKunj += (d.kunjungan || 0));
+  document.getElementById('stat-total-kunjungan').textContent = totalKunj;
+
+  const tbody = document.getElementById('tbody-destinasi');
+  tbody.innerHTML = list.map(d => `
+    <tr>
+      <td><strong>${d.nama}</strong><br><small style="color:var(--muted);">${d.slug}</small></td>
+      <td>${d.wilayah_nama}</td>
+      <td>${d.kategori}</td>
+      <td>
+        <span style="display:inline-flex; align-items:center; gap:0.25rem; color:#f59e0b; font-weight:700;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          ${(d.rating_rata ? Number(d.rating_rata).toFixed(1) : d.rating_awal)}
+        </span>
+      </td>
+      <td>${d.kunjungan || 0}</td>
+      <td class="nowrap"><span class="badge ${d.status === 'aktif' ? 'badge-hijau' : 'badge-kuning'}">${tAdmin(d.status === 'aktif' ? 'aktif' : 'Draft')}</span></td>
+      <td class="nowrap">
+        <button class="btn-sm btn-edit" onclick='mulaiEdit(${JSON.stringify(d)})'>${tAdmin('Edit')}</button>
+        <button class="btn-sm btn-danger" onclick="hapusDestinasi(${d.id})">${tAdmin('Hapus')}</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function mulaiEdit(d) {
+  document.getElementById('form-dest-title').textContent = tAdmin('Edit Destinasi: ') + d.nama;
+  document.getElementById('dest-id').value = d.id;
+  document.getElementById('dest-nama').value = d.nama;
+  document.getElementById('dest-slug').value = d.slug;
+  document.getElementById('dest-wilayah').value = d.wilayah_slug;
+  document.getElementById('dest-kategori').value = d.kategori;
+  document.getElementById('dest-deskripsi').value = d.deskripsi;
+  document.getElementById('dest-detail-1').value = d.detail ? d.detail[0] || '' : '';
+  document.getElementById('dest-detail-2').value = d.detail ? d.detail[1] || '' : '';
+  document.getElementById('dest-highlight').value = (d.highlight || []).join('\n');
+  document.getElementById('dest-aktivitas').value = (d.aktivitas || []).join(', ');
+  document.getElementById('dest-waktu').value = d.waktu_terbaik;
+  document.getElementById('dest-jam').value = d.jam_buka;
+  document.getElementById('dest-tarif').value = d.tarif;
+  document.getElementById('dest-wa').value = d.whatsapp || '';
+  document.getElementById('dest-masuk').value = d.cara_masuk;
+  document.getElementById('dest-etika').value = d.etika;
+  document.getElementById('dest-gambar').value = d.gambar;
+  document.getElementById('dest-lat').value = d.latitude || '';
+  document.getElementById('dest-lng').value = d.longitude || '';
+  document.getElementById('dest-galeri').value = (d.galeri || []).map(g => g.src || g).join(', ');
+  pindahTab('tambah');
+}
+
+function batalEdit() {
+  document.getElementById('form-dest').reset();
+  document.getElementById('dest-id').value = '';
+  document.getElementById('form-dest-title').textContent = tAdmin('Tambah Destinasi Baru');
+  pindahTab('destinasi');
+}
+
+async function submitDestinasi() {
+  const id = document.getElementById('dest-id').value;
+  const p1 = document.getElementById('dest-detail-1').value.trim();
+  const p2 = document.getElementById('dest-detail-2').value.trim();
+  const detail = [p1, p2].filter(Boolean);
+
+  const highlight = document.getElementById('dest-highlight').value
+    .split('\n').map(s => s.trim()).filter(Boolean);
+  const aktivitas = document.getElementById('dest-aktivitas').value
+    .split(',').map(s => s.trim()).filter(Boolean);
+  const galeri = document.getElementById('dest-galeri').value
+    .split(',').map(s => ({ src: s.trim(), alt: '' })).filter(g => g.src);
+
+  const payload = {
+    nama: document.getElementById('dest-nama').value,
+    slug: document.getElementById('dest-slug').value,
+    wilayah: document.getElementById('dest-wilayah').value,
+    kategori: document.getElementById('dest-kategori').value,
+    deskripsi: document.getElementById('dest-deskripsi').value,
+    detail,
+    highlight,
+    aktivitas,
+    galeri,
+    waktuTerbaik: document.getElementById('dest-waktu').value,
+    jamBuka: document.getElementById('dest-jam').value,
+    tarif: document.getElementById('dest-tarif').value,
+    whatsapp: document.getElementById('dest-wa').value,
+    caraMasuk: document.getElementById('dest-masuk').value,
+    etika: document.getElementById('dest-etika').value,
+    gambar: document.getElementById('dest-gambar').value,
+    latitude: parseFloat(document.getElementById('dest-lat').value) || 0,
+    longitude: parseFloat(document.getElementById('dest-lng').value) || 0,
+  };
+
+  const url = id ? '/api/destinasi/' + id : '/api/destinasi';
+  const method = id ? 'PUT' : 'POST';
+
+  const res = await fetch(url, {
+    method,
+    headers: authHeaders(),
+    body: JSON.stringify(payload)
+  });
+  const j = await res.json();
+  if (!res.ok) return alert('Gagal: ' + (j.error || 'kesalahan'));
+
+  alert(id ? 'Destinasi diperbarui & data.js diregenerasi!' : 'Destinasi ditambahkan & data.js diregenerasi!');
+  batalEdit();
+  muatDestinasi();
+}
+
+async function hapusDestinasi(id) {
+  if (!confirm(tAdmin('Yakin ingin menghapus destinasi ini?'))) return;
+  const res = await fetch('/api/destinasi/' + id, { method: 'DELETE', headers: authHeaders() });
+  if (!res.ok) return alert(tAdmin('Gagal menghapus'));
+  muatDestinasi();
+}
+
+async function muatUlasan() {
+  const res = await fetch('/api/ulasan', { headers: authHeaders() });
+  if (res.status === 401) return logout();
+  const list = await res.json();
+
+  const pending = list.filter(u => u.status === 'pending').length;
+  document.getElementById('stat-pending-ulasan').textContent = pending;
+
+  const tbody = document.getElementById('tbody-ulasan');
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--muted); padding:2rem;">' + tAdmin('Belum ada ulasan dari pengunjung.') + '</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(u => `
+    <tr>
+      <td><strong>${u.destinasi_nama}</strong></td>
+      <td>${u.nama_pengunjung}</td>
+      <td>
+        <span style="display:inline-flex; align-items:center; gap:0.25rem; color:#f59e0b; font-weight:700;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          ${u.rating}
+        </span>
+      </td>
+      <td style="max-width:280px;">${u.komentar}</td>
+      <td class="nowrap"><span class="badge ${u.status === 'disetujui' ? 'badge-hijau' : (u.status === 'pending' ? 'badge-kuning' : 'badge-merah')}">${tAdmin(u.status)}</span></td>
+      <td class="nowrap">
+        ${u.status !== 'disetujui' ? `<button class="btn-sm btn-success" onclick="ubahStatusUlasan(${u.id}, 'disetujui')">${tAdmin('Setujui')}</button>` : ''}
+        ${u.status !== 'ditolak' ? `<button class="btn-sm btn-danger" onclick="ubahStatusUlasan(${u.id}, 'ditolak')">${tAdmin('Tolak')}</button>` : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function ubahStatusUlasan(id, status) {
+  await fetch('/api/ulasan/' + id, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify({ status })
+  });
+  muatUlasan();
+  muatDestinasi();
+}
+
+async function muatStatistik() {
+  try {
+    const res = await fetch('/api/statistik', { headers: authHeaders() });
+    if (res.status === 401) return logout();
+    if (!res.ok) {
+      document.getElementById('tbody-stat-dest').innerHTML = '<tr><td colspan="2" style="color:#c53030; text-align:center;">Gagal memuat data kunjungan</td></tr>';
+      return;
+    }
+    const data = await res.json();
+    const list = data && data.perDestinasi ? data.perDestinasi : [];
+    const rows = list.map(d => `
+      <tr><td>${d.nama || '-'}</td><td><strong>${d.total || 0}</strong> ${tAdmin('kali')}</td></tr>
+    `).join('');
+    document.getElementById('tbody-stat-dest').innerHTML = rows || '<tr><td colspan="2" style="color:var(--muted); text-align:center;">Belum ada data kunjungan per destinasi.</td></tr>';
+    const harian = data && data.harian ? data.harian : [];
+    document.getElementById('tbody-stat-harian').innerHTML = harian.length
+      ? harian.map(h => `<tr><td>${h.tanggal}</td><td><strong>${h.total}</strong> ${tAdmin('kunjungan')}</td></tr>`).join('')
+      : '<tr><td colspan="2" style="color:var(--muted); text-align:center;">' + tAdmin('Belum ada data kunjungan.') + '</td></tr>';
+  } catch (e) {
+    document.getElementById('tbody-stat-dest').innerHTML = '<tr><td colspan="2" style="color:#c53030; text-align:center;">Error memuat data: ' + e.message + '</td></tr>';
+  }
+}
+
+// ---------- Logika CRUD Kalender Agama ----------
+async function muatKalender() {
+  const res = await fetch('/api/kalender');
+  if (!res.ok) return;
+  const list = await res.json();
+  const tbody = document.getElementById('tbody-kalender');
+  tbody.innerHTML = list.map(k => `
+    <tr>
+      <td><strong>${k.nama}</strong></td>
+      <td>${k.tanggal_teks}</td>
+      <td style="max-width:320px;">
+        <span style="color:var(--navy); font-weight:600;">${k.keterangan}</span>
+        <details style="margin-top:0.4rem; font-size:0.82rem; color:var(--muted);">
+          <summary style="cursor:pointer; color:var(--blue);">${tAdmin('Baca Sejarah')}</summary>
+          <p style="margin:0.4rem 0 0; line-height:1.5;">${k.sejarah || '<em>' + tAdmin('Belum ada detail sejarah.') + '</em>'}</p>
+        </details>
+      </td>
+      <td style="max-width:220px; font-size:0.85rem; color:var(--muted);">${k.saran}</td>
+      <td class="nowrap">
+        <button class="btn-sm btn-edit" onclick='mulaiEditKalender(${JSON.stringify(k)})'>${tAdmin('Edit')}</button>
+        <button class="btn-sm btn-danger" onclick="hapusKalender(${k.id})">${tAdmin('Hapus')}</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function bukaFormKalender() {
+  document.getElementById('form-kal').reset();
+  document.getElementById('kal-id').value = '';
+  document.getElementById('form-kal-title').textContent = tAdmin('Tambah Hari Suci Baru');
+  document.getElementById('box-form-kalender').style.display = 'block';
+  document.getElementById('box-form-kalender').scrollIntoView({ behavior: 'smooth' });
+}
+
+function tutupFormKalender() {
+  document.getElementById('form-kal').reset();
+  document.getElementById('kal-id').value = '';
+  document.getElementById('box-form-kalender').style.display = 'none';
+}
+
+function mulaiEditKalender(k) {
+  document.getElementById('form-kal-title').textContent = tAdmin('Edit Hari Suci: ') + k.nama;
+  document.getElementById('kal-id').value = k.id;
+  document.getElementById('kal-nama').value = k.nama;
+  document.getElementById('kal-tanggal').value = k.tanggal_teks;
+  document.getElementById('kal-keterangan').value = k.keterangan;
+  document.getElementById('kal-saran').value = k.saran;
+  document.getElementById('kal-sejarah').value = k.sejarah || '';
+  document.getElementById('box-form-kalender').style.display = 'block';
+  document.getElementById('box-form-kalender').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function submitKalender() {
+  const id = document.getElementById('kal-id').value;
+  const payload = {
+    nama: document.getElementById('kal-nama').value.trim(),
+    tanggal: document.getElementById('kal-tanggal').value.trim(),
+    keterangan: document.getElementById('kal-keterangan').value.trim(),
+    saran: document.getElementById('kal-saran').value.trim(),
+    sejarah: document.getElementById('kal-sejarah').value.trim()
+  };
+
+  const url = id ? '/api/kalender/' + id : '/api/kalender';
+  const method = id ? 'PUT' : 'POST';
+
+  const res = await fetch(url, {
+    method,
+    headers: authHeaders(),
+    body: JSON.stringify(payload)
+  });
+  const j = await res.json();
+  if (!res.ok) return alert('Gagal: ' + (j.error || 'kesalahan'));
+
+  alert(id ? 'Hari suci diperbarui & data.js diregenerasi!' : 'Hari suci ditambahkan & data.js diregenerasi!');
+  tutupFormKalender();
+  muatKalender();
+}
+
+async function hapusKalender(id) {
+  if (!confirm(tAdmin('Yakin ingin menghapus hari suci ini?'))) return;
+  const res = await fetch('/api/kalender/' + id, { method: 'DELETE', headers: authHeaders() });
+  if (!res.ok) return alert(tAdmin('Gagal menghapus'));
+  muatKalender();
+}
+
+// ---------- Logika CRUD Etika Budaya ----------
+async function muatBudaya() {
+  const res = await fetch('/api/budaya');
+  if (!res.ok) return;
+  const list = await res.json();
+  const tbody = document.getElementById('tbody-budaya');
+  tbody.innerHTML = list.map(b => `
+    <tr>
+      <td><strong>${b.judul}</strong></td>
+      <td><code>${b.slug}</code></td>
+      <td style="max-width:240px; font-size:0.85rem; color:var(--muted);">${b.ringkas}</td>
+      <td style="max-width:320px; font-size:0.85rem; line-height:1.5;">${b.detail}</td>
+      <td class="nowrap">
+        <button class="btn-sm btn-edit" onclick='mulaiEditBudaya(${JSON.stringify(b)})'>${tAdmin('Edit')}</button>
+        <button class="btn-sm btn-danger" onclick="hapusBudaya(${b.id})">${tAdmin('Hapus')}</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function bukaFormBudaya() {
+  document.getElementById('form-bud').reset();
+  document.getElementById('bud-id').value = '';
+  document.getElementById('form-bud-title').textContent = tAdmin('Tambah Etika Budaya Baru');
+  document.getElementById('box-form-budaya').style.display = 'block';
+  document.getElementById('box-form-budaya').scrollIntoView({ behavior: 'smooth' });
+}
+
+function tutupFormBudaya() {
+  document.getElementById('form-bud').reset();
+  document.getElementById('bud-id').value = '';
+  document.getElementById('box-form-budaya').style.display = 'none';
+}
+
+function mulaiEditBudaya(b) {
+  document.getElementById('form-bud-title').textContent = tAdmin('Edit Etika Budaya: ') + b.judul;
+  document.getElementById('bud-id').value = b.id;
+  document.getElementById('bud-judul').value = b.judul;
+  document.getElementById('bud-slug').value = b.slug;
+  document.getElementById('bud-ringkas').value = b.ringkas;
+  document.getElementById('bud-detail').value = b.detail;
+  document.getElementById('box-form-budaya').style.display = 'block';
+  document.getElementById('box-form-budaya').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function submitBudaya() {
+  const id = document.getElementById('bud-id').value;
+  const payload = {
+    judul: document.getElementById('bud-judul').value.trim(),
+    slug: document.getElementById('bud-slug').value.trim(),
+    ringkas: document.getElementById('bud-ringkas').value.trim(),
+    detail: document.getElementById('bud-detail').value.trim()
+  };
+
+  const url = id ? '/api/budaya/' + id : '/api/budaya';
+  const method = id ? 'PUT' : 'POST';
+
+  const res = await fetch(url, {
+    method,
+    headers: authHeaders(),
+    body: JSON.stringify(payload)
+  });
+  const j = await res.json();
+  if (!res.ok) return alert('Gagal: ' + (j.error || 'kesalahan'));
+
+  alert(id ? 'Etika budaya diperbarui & data.js diregenerasi!' : 'Etika budaya ditambahkan & data.js diregenerasi!');
+  tutupFormBudaya();
+  muatBudaya();
+}
+
+async function hapusBudaya(id) {
+  if (!confirm('Yakin ingin menghapus etika budaya ini?')) return;
+  const res = await fetch('/api/budaya/' + id, { method: 'DELETE', headers: authHeaders() });
+  if (!res.ok) return alert('Gagal menghapus');
+  muatBudaya();
+}
+
+async function triggerRegenerasi() {
+  const res = await fetch('/api/regenerasi', { method: 'POST', headers: authHeaders() });
+  const j = await res.json();
+  alert(j.pesan || 'OK');
+}
+
+// ---------- Bahasa Admin ----------
+const ADMIN_TRANSLATIONS = {
+  en: {
+    'Masuk Admin': 'Admin Login',
+    'Kelola destinasi, ulasan pengunjung, dan statistik.': 'Manage destinations, visitor reviews, and statistics.',
+    'Email': 'Email',
+    'Password': 'Password',
+    'Masuk': 'Login',
+    'Keluar': 'Logout',
+    'Panel Admin': 'Admin Panel',
+    'Dashboard': 'Dashboard',
+    'Tambah Destinasi': 'Add Destination',
+    'Tambah Hari Suci': 'Add Sacred Day',
+    'Tambah Etika Budaya': 'Add Cultural Etiquette',
+    'Ulasan': 'Reviews',
+    'Statistik': 'Statistics',
+    'Total Destinasi': 'Total Destinations',
+    'Total Kunjungan': 'Total Visits',
+    'Edit': 'Edit',
+    'Hapus': 'Delete',
+    'Tambah Destinasi Baru': 'Add New Destination',
+    'Edit Destinasi: ': 'Edit Destination: ',
+    'Nama Destinasi *': 'Destination Name *',
+    'Slug (URL) *': 'Slug (URL) *',
+    'Wilayah *': 'Region *',
+    'Kategori': 'Category',
+    'Deskripsi Ringkas (untuk kartu) *': 'Short Description (for card) *',
+    'Detail Paragraf 1 (pengantar mendalam) *': 'Detail Paragraph 1 (introduction) *',
+    'Detail Paragraf 2 (suasana, waktu terbaik, tips)': 'Detail Paragraph 2 (atmosphere, best time, tips)',
+    'Sorotan Utama (pisahkan baris baru)': 'Key Highlights (separate by new line)',
+    'Aktivitas (pisahkan koma)': 'Activities (separate by comma)',
+    'Waktu Terbaik': 'Best Time',
+    'Jam Buka': 'Opening Hours',
+    'Tarif': 'Admission Fee',
+    'WhatsApp (opsional, format 628...)': 'WhatsApp (optional, format 628...)',
+    'Latitude (koordinat lokasi)': 'Latitude (location coordinate)',
+    'Longitude (koordinat lokasi)': 'Longitude (location coordinate)',
+    'Cara Masuk': 'Access Route',
+    'Etika Khusus Tempat Ini *': 'Etiquette at This Place *',
+    'Path Foto Utama *': 'Main Photo Path *',
+    'Upload': 'Upload',
+    'Foto Galeri (pisahkan koma)': 'Gallery Photos (separate by comma)',
+    'Upload Galeri': 'Upload Gallery',
+    'Regenerasi data.js': 'Regenerate data.js',
+    'Destinasi': 'Destinations',
+    'Tambah': 'Add',
+    'Hari Suci': 'Sacred Days',
+    'Budaya': 'Culture',
+    'Wilayah': 'Region',
+    'Rating': 'Rating',
+    'Kunjungan': 'Visits',
+    'Status': 'Status',
+    'Aktif': 'Active',
+    'aktif': 'Active',
+    'Draft': 'Draft',
+    'disetujui': 'Approved',
+    'pending': 'Pending',
+    'ditolak': 'Rejected',
+    'Destinasi diperbarui & data.js diregenerasi!': 'Destination updated & data.js regenerated!',
+    'Destinasi ditambahkan & data.js diregenerasi!': 'Destination added & data.js regenerated!',
+    'Gagal: ': 'Failed: ',
+    'Yakin ingin menghapus destinasi ini?': 'Are you sure you want to delete this destination?',
+    'Gagal menghapus': 'Failed to delete',
+    'Belum ada ulasan dari pengunjung.': 'No reviews from visitors yet.',
+    'Destinasi': 'Destination',
+    'Pengunjung': 'Visitor',
+    'Komentar': 'Comment',
+    'Setujui': 'Approve',
+    'Tolak': 'Reject',
+    'Pending': 'Pending',
+    'Hari suci diperbarui & data.js diregenerasi!': 'Sacred day updated & data.js regenerated!',
+    'Hari suci ditambahkan & data.js diregenerasi!': 'Sacred day added & data.js regenerated!',
+    'Tambah Hari Suci Baru': 'Add New Sacred Day',
+    'Edit Hari Suci: ': 'Edit Sacred Day: ',
+    'Nama Hari Suci *': 'Sacred Day Name *',
+    'Tanggal *': 'Date *',
+    'Keterangan *': 'Description *',
+    'Saran *': 'Advice *',
+    'Sejarah *': 'History *',
+    'Etika Budaya': 'Cultural Etiquette',
+    'Etika budaya diperbarui & data.js diregenerasi!': 'Cultural etiquette updated & data.js regenerated!',
+    'Etika budaya ditambahkan & data.js diregenerasi!': 'Cultural etiquette added & data.js regenerated!',
+    'Tambah Etika Budaya Baru': 'Add New Cultural Etiquette',
+    'Edit Etika Budaya: ': 'Edit Cultural Etiquette: ',
+    'Judul Etika *': 'Etiquette Title *',
+    'Slug *': 'Slug *',
+    'Ringkas *': 'Summary *',
+    'Detail *': 'Detail *',
+    'Gagal menghubungi server': 'Failed to connect to server',
+    'Login gagal': 'Login failed',
+    'Silakan login terlebih dahulu': 'Please log in first',
+    'Data ulasan tidak lengkap': 'Review data incomplete',
+    'Terima kasih! Ulasan Anda berhasil diterbitkan.': 'Thank you! Your review has been published.',
+    'Ulasan menunggu persetujuan admin.': 'Review awaiting admin approval.',
+    'Dashboard Kelola SARI': 'Admin Dashboard SARI',
+    'Perubahan data langsung memperbarui file assets/js/data.js.': 'Changes to data directly update assets/js/data.js.',
+    'Ulasan Pending': 'Pending Reviews',
+    '+ Tambah Destinasi': '+ Add Destination',
+    'Nama': 'Name',
+    'Aksi': 'Actions',
+    'Tambah Destinasi': 'Add Destination',
+    'Tambah Hari Suci': 'Add Sacred Day',
+    'Tambah Etika Budaya': 'Add Cultural Etiquette',
+    'kali': 'times',
+    'kunjungan': 'visits',
+    'Baca Sejarah': 'Read History',
+    'Belum ada detail sejarah.': 'No history details yet.',
+    'Yakin ingin menghapus hari suci ini?': 'Are you sure you want to delete this sacred day?',
+    'kesalahan': 'error'
+  }
+};
+
+function tAdmin(key) {
+  const lang = localStorage.getItem('sari_admin_lang') || 'id';
+  if (lang === 'en' && ADMIN_TRANSLATIONS.en && ADMIN_TRANSLATIONS.en[key]) {
+    return ADMIN_TRANSLATIONS.en[key];
+  }
+  return key;
+}
+
+async function toggleLang() {
+  const next = localStorage.getItem('sari_admin_lang') === 'en' ? 'id' : 'en';
+  localStorage.setItem('sari_admin_lang', next);
+  applyAdminTranslations();
+  // Re-render dynamic tables so they use the new language
+  if (next === 'en' || next === 'id') {
+    muatDestinasi();
+    muatUlasan();
+    muatKalender();
+    muatBudaya();
+    muatStatistik();
+  }
+}
+
+function applyAdminTranslations() {
+  try {
+    const lang = localStorage.getItem('sari_admin_lang') || 'id';
+    const btn = document.querySelector('#nav-user button[onclick="toggleLang()"]');
+    if (btn) btn.textContent = lang === 'en' ? 'ID' : 'EN';
+    if (lang !== 'en') return;
+
+    const dict = ADMIN_TRANSLATIONS.en;
+
+    // Translate elements with data-t attribute
+    document.querySelectorAll('[data-t]').forEach((el) => {
+      const key = el.getAttribute('data-t');
+      if (key && dict[key]) el.textContent = dict[key];
+    });
+
+    // Translate button text by exact match
+    document.querySelectorAll('button, a.btn, .btn').forEach((el) => {
+      const text = el.textContent.trim();
+      if (dict[text]) el.textContent = dict[text];
+    });
+  } catch (e) {
+    console.error('Admin translation error:', e);
+  }
+}
+
+// Inisialisasi: cek sesi tersimpan
+if (token) {
+  const u = JSON.parse(localStorage.getItem('sari_admin_user') || '{}');
+  tampilkanDashboard(u);
+}
+</script>
+</body>
+</html>

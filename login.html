@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masuk / Daftar — SARI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .auth-wrap {
+    max-width: 440px;
+    margin: 4.5rem auto;
+    padding: 0 1.5rem;
+  }
+  .auth-card {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--r-xl);
+    padding: 2.6rem 2.2rem;
+    box-shadow: var(--sh-lg);
+  }
+  .auth-tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: var(--bg-soft);
+    padding: 0.35rem;
+    border-radius: var(--r-full);
+    margin-bottom: 2rem;
+  }
+  .auth-tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.65rem;
+    border-radius: var(--r-full);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    transition: var(--t);
+  }
+  .auth-tab.aktif {
+    background: var(--bg);
+    color: var(--navy);
+    box-shadow: var(--sh-sm);
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.2rem;
+  }
+  .form-group label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .form-control {
+    padding: 0.85rem 1rem;
+    border: 1.5px solid var(--line);
+    border-radius: var(--r-md);
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: var(--t);
+  }
+  .form-control:focus {
+    outline: none;
+    border-color: var(--blue);
+  }
+  .alert-box {
+    padding: 0.85rem 1rem;
+    border-radius: var(--r-md);
+    font-size: 0.88rem;
+    margin-bottom: 1.2rem;
+    display: none;
+  }
+  .alert-error {
+    background: #feecef;
+    color: #c53030;
+  }
+  .alert-success {
+    background: #e8f8f1;
+    color: #0b7a4b;
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand">SARI<b>.</b></a>
+    <ul class="nav-links" id="nav-menu">
+      <li><a href="destinasi.html">Destinasi Lokal</a></li>
+      <li><a href="etika.html">Etika Budaya</a></li>
+      <li><a href="kalender.html">Kalender Agama</a></li>
+      <li><a href="about.html">Tentang SARI</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="index.html" class="btn btn-outline" style="padding:0.5rem 1.1rem; font-size:0.85rem;">Kembali</a>
+    </div>
+  </div>
+</nav>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab aktif" id="tab-btn-masuk" onclick="gantiTab('masuk')">Masuk</button>
+      <button class="auth-tab" id="tab-btn-daftar" onclick="gantiTab('daftar')">Daftar Akun</button>
+    </div>
+
+    <div id="alert" class="alert-box"></div>
+
+    <!-- Form Masuk -->
+    <form id="form-masuk" onsubmit="event.preventDefault(); submitMasuk();">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="masuk-email" class="form-control" placeholder="nama@email.com" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Kata Sandi</label>
+        <input type="password" id="masuk-password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.2rem;">
+        <input type="checkbox" id="ingat-saya" style="width:16px; height:16px; cursor:pointer;" checked>
+        <label for="ingat-saya" style="font-size:0.85rem; color:var(--ink); cursor:pointer; user-select:none;">Ingat info login saya di peramban ini</label>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Masuk ke SARI</button>
+      <p style="font-size:0.82rem; color:var(--muted); text-align:center; margin-top:1.2rem;">
+        Admin juga dapat masuk lewat form ini.
+      </p>
+    </form>
+
+    <!-- Form Daftar -->
+    <form id="form-daftar" style="display:none;" onsubmit="event.preventDefault(); submitDaftar();">
+      <div class="form-group">
+        <label>Nama Lengkap</label>
+        <input type="text" id="daftar-nama" class="form-control" placeholder="contoh: Wayan Raditya" required>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="daftar-email" class="form-control" placeholder="nama@email.com" required>
+      </div>
+      <div class="form-group">
+        <label>Kata Sandi (minimal 6 karakter)</label>
+        <input type="password" id="daftar-password" class="form-control" placeholder="••••••••" minlength="6" required>
+      </div>
+      <div class="form-group">
+        <label>Tipe Akun</label>
+        <select id="daftar-role" class="form-control" style="background:#fff;">
+          <option value="user">Wisatawan (Menjelajah &amp; Menulis Ulasan)</option>
+          <option value="kontributor">Kontributor / Pengelola Lokal (Akses Panel Kelola)</option>
+          <option value="admin">Administrator Penuh</option>
+        </select>
+        <small style="color:var(--muted); font-size:0.78rem;">Kontributor &amp; Admin mendapatkan akses ke panel manajemen konten mandiri.</small>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem;">Buat Akun Baru</button>
+    </form>
+  </div>
+</div>
+
+<script>
+// Auto-fill jika ada email tersimpan
+const emailTersimpan = localStorage.getItem('sari_saved_email');
+if (emailTersimpan) {
+  const el = document.getElementById('masuk-email');
+  if (el) el.value = emailTersimpan;
+}
+
+const token = localStorage.getItem('sari_token');
+if (token) {
+  // Kalau sudah login, arahkan langsung ke profil
+  location.href = 'profile.html';
+}
+
+function gantiTab(tab) {
+  const isMasuk = tab === 'masuk';
+  document.getElementById('form-masuk').style.display = isMasuk ? 'block' : 'none';
+  document.getElementById('form-daftar').style.display = isMasuk ? 'none' : 'block';
+  document.getElementById('tab-btn-masuk').classList.toggle('aktif', isMasuk);
+  document.getElementById('tab-btn-daftar').classList.toggle('aktif', !isMasuk);
+  sembunyiAlert();
+}
+
+function tampilAlert(pesan, jenis = 'error') {
+  const el = document.getElementById('alert');
+  el.textContent = pesan;
+  el.className = 'alert-box ' + (jenis === 'success' ? 'alert-success' : 'alert-error');
+  el.style.display = 'block';
+}
+
+function sembunyiAlert() {
+  document.getElementById('alert').style.display = 'none';
+}
+
+async function submitMasuk() {
+  sembunyiAlert();
+  const email = document.getElementById('masuk-email').value.trim();
+  const password = document.getElementById('masuk-password').value;
+  const ingatSaya = document.getElementById('ingat-saya').checked;
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || 'Login gagal');
+
+    // Simpan token dan data user
+    localStorage.setItem('sari_token', j.token);
+    localStorage.setItem('sari_user', JSON.stringify(j.user));
+
+    if (ingatSaya) {
+      localStorage.setItem('sari_saved_email', email);
+    } else {
+      localStorage.removeItem('sari_saved_email');
+    }
+
+    if (j.user.role === 'admin') {
+      localStorage.setItem('sari_admin_token', j.token);
+      localStorage.setItem('sari_admin_user', JSON.stringify(j.user));
+    }
+
+    tampilAlert('Berhasil masuk! Mengalihkan...', 'success');
+    setTimeout(() => {
+      location.href = j.user.role === 'admin' ? 'admin.html' : 'profile.html';
+    }, 600);
+  } catch (err) {
+    tampilAlert(err.message);
+  }
+}
+
+async function submitDaftar() {
+  sembunyiAlert();
+  const nama = document.getElementById('daftar-nama').value.trim();
+  const email = document.getElementById('daftar-email').value.trim();
+  const password = document.getElementById('daftar-password').value;
+  const role = document.getElementById('daftar-role').value;
+
+  try {
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nama, email, password, role })
+    });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || 'Pendaftaran gagal');
+
+    localStorage.setItem('sari_token', j.token);
+    localStorage.setItem('sari_user', JSON.stringify(j.user));
+
+    if (j.user.role === 'admin' || j.user.role === 'kontributor') {
+      localStorage.setItem('sari_admin_token', j.token);
+      localStorage.setItem('sari_admin_user', JSON.stringify(j.user));
+    }
+
+    tampilAlert('Pendaftaran berhasil! Mengalihkan...', 'success');
+    setTimeout(() => {
+      location.href = (j.user.role === 'admin' || j.user.role === 'kontributor') ? 'admin.html' : 'profile.html';
+    }, 600);
+  } catch (err) {
+    tampilAlert(err.message);
+  }
+}
+</script>
+</body>
+</html>
